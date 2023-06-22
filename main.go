@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 
 	"github.com/rancher/lasso/pkg/client"
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
@@ -11,7 +12,13 @@ import (
 )
 
 func main() {
-	kubeconfigPath := "/Users/mbelgaied/.kube/config"
+
+	// define the path to the kubeconfig file
+	kubeconfigPath := os.Getenv("HOME") + "/.kube/config"
+	if os.Getenv("KUBECONFIG") != "" {
+		kubeconfigPath = os.Getenv("KUBECONFIG")
+	}
+
 	// create a new clientConfig using Wrangler's kubeconfig package and GetNonInteractiveClientConfig function
 	clientConfig, err := kubeconfig.GetNonInteractiveClientConfig(kubeconfigPath).ClientConfig()
 
