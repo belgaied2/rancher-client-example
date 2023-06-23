@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/rancher/lasso/pkg/client"
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	"github.com/rancher/wrangler/pkg/kubeconfig"
+	"github.com/rancher/wrangler/pkg/schemes"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 func main() {
@@ -34,11 +35,19 @@ func main() {
 		panic(err)
 	}
 
-	settingGVK := schema.GroupVersionKind{
-		Group:   "management.cattle.io",
-		Version: "v3",
-		Kind:    "Setting",
+	schemes.Register(v3.AddToScheme)
+	// settingGVK := schema.GroupVersionKind{
+	// 	Group:   "management.cattle.io",
+	// 	Version: "v3",
+	// 	Kind:    "Setting",
+	// }
+
+	settingGVK, err := clientFactory.GVKForObject(&v3.Setting{})
+	if err != nil {
+		panic(err)
 	}
+
+	fmt.Printf("%+v\n", settingGVK)
 
 	// create a new client for the Setting resource
 	settingsClient, err := clientFactory.ForKind(settingGVK)
@@ -59,11 +68,5 @@ func main() {
 	for _, setting := range settingsList.Items {
 		println(setting.Name)
 	}
-
-	//create a new managementClient
-	// managementClient, err := v3.NewFactoryFromConfigWithOptions(clientConfig, clientFactory, &v3.FactoryOptions{})
-	// if err != nil {
-	// 	panic(err)
-	// }
 
 }
